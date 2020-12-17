@@ -70,6 +70,7 @@ __code const struct parameter_info {
 	{"MANCHESTER",      0},
 	{"RTSCTS",          0},
 	{"MAX_WINDOW",    131},
+	{"RX_TX",			0},
 #ifdef INCLUDE_AES
 	{"ENCRYPTION_LEVEL", 0}, // no Enycryption (0), 128 or 256 bit key
 #endif
