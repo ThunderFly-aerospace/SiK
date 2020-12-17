@@ -483,7 +483,7 @@ radio_transmit(uint8_t length, __xdata uint8_t * __pdata buf, __pdata uint16_t t
 
 	EX0_SAVE_DISABLE;
 
-#ifdef INCLUDE_GOLAYq
+#ifdef INCLUDE_GOLAY
 	if (!feature_golay) {
 		ret = radio_transmit_simple(length, buf, timeout_ticks, true);
 	} else {
