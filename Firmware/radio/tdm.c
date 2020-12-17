@@ -500,25 +500,22 @@ __at(0xFF) uint8_t __idata _canary;
 void
 tdm_serial_loop(void)
 {
-#ifdef RADIO_SPLAT_TESTING_MODE
-    for (;;) {
-        radio_set_channel(0);
-        radio_transmit(MAX_PACKET_LENGTH, pbuf, 0);
-        //radio_receiver_on();
-    }
-#else
   __pdata uint8_t	len;
-  __pdata uint16_t tnow, tdelta;
+  __pdata uint16_t tnow, tlast_report;
   __pdata uint8_t max_xmit;
-#ifdef INCLUDE_AES
-  __pdata uint16_t crc;
-#endif // INCLUDE_AES  
   __pdata uint16_t last_t = timer2_tick();
   __pdata uint16_t last_link_update = last_t;
-  
 
   _canary = 42;
-  
+
+  // set right receive channel
+  radio_set_channel(0);
+  radio_receiver_on();
+
+  tlast_report = timer2_tick();
+
+  statistics.average_noise = 0;
+
   for (;;) {
     if (_canary != 42) {
       panic("stack blown\n");
@@ -530,343 +527,47 @@ tdm_serial_loop(void)
     
     // give the AT command processor a chance to handle a command
     at_command();
-    
-    // display test data if needed
-    if (test_display) {
-      display_test_output();
-      test_display = 0;
-    }
-    
-    if (seen_mavlink && feature_mavlink_framing && !at_mode_active) {
-      if (MAVLink_report()) {
-        seen_mavlink = 0;
-      }
-    }
-    
-    // set right receive channel
-    radio_set_channel(fhop_receive_channel());
-    
-    // get the time before we check for a packet coming in
+
     tnow = timer2_tick();
     
-    // see if we have received a packet
-    if (radio_receive_packet(&len, pbuf)) {
-      
-      // update the activity indication
-      received_packet = true;
-      fhop_set_locked(true);
-      
-      // update filtered RSSI value and packet stats
-      statistics.average_rssi = (radio_last_rssi() + 7*(uint16_t)statistics.average_rssi)/8;
-      statistics.receive_count++;
-      
-      // we're not waiting for a preamble
-      // any more
-      transmit_wait = 0;
-      
-      if (len < 2) {
-        // not a valid packet. We always send
-        // two control bytes at the end of every packet
+    if (!param_get(PARAM_RX_TX)) {
+      // we are a receiver
+
+      if (!at_mode_active && !param_get(PARAM_RX_TX)
+          && ((tnow - tlast_report) > 62500 /* ~ 1 sec */)) {
+        tlast_report = tnow;
+        seen_mavlink = 2; // hardcode MAVLink v2
+        MAVLink_report();
         continue;
       }
-      
-      // extract control bytes from end of packet
-      memcpy(&trailer, &pbuf[len-sizeof(trailer)], sizeof(trailer));
-      len -= sizeof(trailer);
-      
-      if (trailer.window == 0 && len != 0) {
-        // its a control packet
-        if (len == sizeof(struct statistics)) {
-          memcpy(&remote_statistics, pbuf, len);
-        }
-        
-        // don't count control packets in the stats
-        statistics.receive_count--;
-      } else if (trailer.window != 0) {
-        // sync our transmit windows based on
-        // received header
-        sync_tx_windows(len);
-        last_t = tnow;
-        
 
-	// Send data to console (serial buffers) if following conditions met
-	// If is a command and data is destined to THIS modem
-	// OR
-	// data is present, not a command, not a dup and not in AT Mode
-	//
-	// Question: Are we happy to blink Activity lights for RT command results?
-        if ((trailer.command == 1 && handle_at_command(len)) 
-            ||
-            (len != 0 && trailer.command == 0 &&
-             !packet_is_duplicate(len, pbuf, trailer.resend) &&
-             !at_mode_active
-            )) 
-        {
-             // its user data - send it out
-             // the serial port
-#ifdef INCLUDE_AES
-             crc = crc16(len, pbuf);
-             // Only of CRC's agree do we process the pbuf
-             // (We can't decrypt a packet that is corrupt)
-             if (crc == trailer.crc) {
-                LED_ACTIVITY = LED_ON;
-                serial_decrypt_buf(pbuf, len);
-                LED_ACTIVITY = LED_OFF;
-             } else {
-		if (errors.crc_errors != 0xFFFF) {
-		   errors.crc_errors++; 
-		}
-             }
-#else // INCLUDE_AES
-             LED_ACTIVITY = LED_ON;
-             serial_write_buf(pbuf, len);
-             LED_ACTIVITY = LED_OFF;
-#endif // INCLUDE_AES
-          
-        }
-      }
-      continue;
-    }
-    
-    // see how many 16usec ticks have passed and update
-    // the tdm state machine. We re-fetch tnow as a bad
-    // packet could have cost us a lot of time.
-    tnow = timer2_tick();
-    tdelta = tnow - last_t;
-    tdm_state_update(tdelta);
-    last_t = tnow;
-    
-    // update link status every 0.5s
-    if (tnow - last_link_update > 32768) {
-      link_update();
-      last_link_update = tnow;
-    }
-    
+      // see if we have received a packet
+      if (radio_receive_packet(&len, pbuf)) {
+        // update filtered RSSI value and packet stats
+        statistics.average_rssi = (radio_last_rssi() + 7*(uint16_t)statistics.average_rssi)/8;
+        statistics.receive_count++;
 
-    if (lbt_rssi != 0) {
-      // implement listen before talk
-      if (radio_current_rssi() < lbt_rssi) {
-        lbt_listen_time += tdelta;
-      } else {
-        lbt_listen_time = 0;
-        if (lbt_rand == 0) {
-          lbt_rand = ((uint16_t)r_rand()) % lbt_min_time;
-        }
+        LED_ACTIVITY = LED_ON;
+        serial_write_buf(pbuf, len);
+        LED_ACTIVITY = LED_OFF;
       }
-      if (lbt_listen_time < lbt_min_time + lbt_rand) {
-        // we need to listen some more
-        continue;
-      }
-    }
-    
-    // we are allowed to transmit in our transmit window
-    // or in the other radios transmit window if we have
-    // bonus ticks
-#if USE_TICK_YIELD
-    if (tdm_state != TDM_TRANSMIT &&
-          !(bonus_transmit && tdm_state == TDM_RECEIVE)) {
-      // we cannot transmit now
-      continue;
-    }
-#else
-    if (tdm_state != TDM_TRANSMIT) {
-      continue;
-    }		
-#endif
-    
-    if (transmit_yield != 0) {
-      // we've give up our window
-      continue;
-    }
-    
-    if (transmit_wait != 0) {
-      // we're waiting for a preamble to turn into a packet
-      continue;
-    }
-    
-    if (!received_packet &&
-          radio_preamble_detected() ||
-          radio_receive_in_progress()) {
-      // a preamble has been detected. Don't
-      // transmit for a while
-      transmit_wait = packet_latency;
-      continue;
-    }
-    
-    // sample the background noise when it is out turn to
-    // transmit, but we are not transmitting,
-    // averaged over around 4 samples
-    statistics.average_noise = (radio_current_rssi() + 3*(uint16_t)statistics.average_noise)/4;
-    
-    if (duty_cycle_wait) {
-      // we're waiting for our duty cycle to drop
-      continue;
-    }
-    
-    // how many bytes could we transmit in the time we
-    // have left?
-    if (tdm_state_remaining < packet_latency) {
-      // none ....
-      continue;
-    }
-    max_xmit = (tdm_state_remaining - packet_latency) / ticks_per_byte;
-    if (max_xmit < PACKET_OVERHEAD) {
-      // can't fit the trailer in with a byte to spare
-      continue;
-    }
-    //max_xmit -= PACKET_OVERHEAD;
-    max_xmit -= sizeof(trailer)+1;
-    
-#ifdef INCLUDE_AES
-    if (aes_get_encryption_level() > 0) {
-      if (max_xmit < 16) {
-        // With AES, the cipher is up to 16 bytes larger than the text
-        // we are encrypting. So we make sure we have sufficient space
-        // i.e. min size of any cipher text is 16 bytes
-        continue;
-      }
-      max_xmit -= 16;
-    }
-#endif // INCLUDE_AES
-    
-    if (max_xmit > max_data_packet_length) {
-      max_xmit = max_data_packet_length;
-    }
-    
-#if PIN_MAX > 0
-    // Check to see if any pins have changed state
-    pins_user_check();
-#endif
-    
-    // ask the packet system for the next packet to send
-    if (send_at_command && 
-            max_xmit >= strlen(remote_at_cmd)) {
-      // send a remote AT command
-      len = strlen(remote_at_cmd);
-      memcpy(pbuf, remote_at_cmd, len);
-      trailer.command = 1;
-      send_at_command = false;
-    } else {
-      // get a packet from the serial port
-      len = packet_get_next(max_xmit, pbuf);
 
-      if (len > 0) {
-         trailer.command = packet_is_injected();
-      } else {
-         trailer.command = 0;
-      }
-#ifdef INCLUDE_AES
-      trailer.crc = crc16(len, pbuf);
-#endif
+      continue;
     }
+
+    max_xmit = MAX_PACKET_LENGTH;
+
+    // get a packet from the serial port
+    len = packet_get_next(max_xmit, pbuf);
     
-    if (len > max_data_packet_length) {
-      panic("oversized tdm packet");
-    }
-    
-    trailer.bonus = (tdm_state == TDM_RECEIVE);
-    trailer.resend = packet_is_resend();
-    
-    if (tdm_state == TDM_TRANSMIT &&
-            len == 0 &&
-            send_statistics &&
-            max_xmit >= sizeof(statistics)) {
-      // send a statistics packet
-      send_statistics = 0;
-      memcpy(pbuf, &statistics, sizeof(statistics));
-      len = sizeof(statistics);
-      
-      // mark a stats packet with a zero window
-      trailer.window = 0;
-      trailer.resend = 0;
-    } else {
-      // calculate the control word as the number of
-      // 16usec ticks that will be left in this
-      // tdm state after this packet is transmitted
-      
-#ifdef INCLUDE_AES
-      if (aes_get_encryption_level() > 0) {
-        // Calculation here gives length of cipher text (= same length of padded block)
-        trailer.window = (uint16_t)(tdm_state_remaining - flight_time_estimate(16 * (1 + (len+sizeof(trailer)>>4))));
-      } else {
-        trailer.window = (uint16_t)(tdm_state_remaining - flight_time_estimate(len+sizeof(trailer)));		
-      }
-#else // INCLUDE_AES
-      trailer.window = (uint16_t)(tdm_state_remaining - flight_time_estimate(len+sizeof(trailer)));
-#endif // INCLUDE_AES
-    }
-    
-    // set right transmit channel
-    radio_set_channel(fhop_transmit_channel());
-    
-    memcpy(&pbuf[len], &trailer, sizeof(trailer));
-    
-    if (len != 0 && trailer.window != 0) {
+    if (len != 0) {
       // show the user that we're sending real data
       LED_ACTIVITY = LED_ON;
-    }
-    
-    if (len == 0) {
-      // sending a zero byte packet gives up
-      // our window, but doesn't change the
-      // start of the next window
-      transmit_yield = 1;
-    }
-    
-    // after sending a packet leave a bit of time before
-    // sending the next one. The receivers don't cope well
-    // with back to back packets
-    transmit_wait = packet_latency;
-    
-    // if we're implementing a duty cycle, add the
-    // transmit time to the number of ticks we've been transmitting
-    if ((duty_cycle - duty_cycle_offset) != 100) {
-      transmitted_ticks += flight_time_estimate(len+sizeof(trailer));
-    }
-    
-    // start transmitting the packet
-    if (!radio_transmit(len + sizeof(trailer), pbuf, tdm_state_remaining + (silence_period/2)) &&
-        len != 0 && trailer.window != 0 && trailer.command == 0) {
-      packet_force_resend();
-    }
-    
-    if (lbt_rssi != 0) {
-      // reset the LBT listen time
-      lbt_listen_time = 0;
-      lbt_rand = 0;
-    }
-    
-    if (len != 0 && trailer.window != 0) {
+      radio_transmit(len, pbuf, 65000);
       LED_ACTIVITY = LED_OFF;
     }
-
-#ifdef INCLUDE_AES
-    // If we have any packets that need decrypting lets do it now.
-    if(tdm_state_remaining > tx_window_width/2)
-    {
-       // If it is starting to get really full, we want to try decrypting
-       // not just one, but a few packets.
-       if (encrypt_buffer_getting_full()) {
-          while (!encrypt_buffer_getting_empty()) {
-            decryptPackets();
-          }
-       } else {
-         decryptPackets();
-       }
-    }
-#endif // INCLUDE_AES
-
-
-    // set right receive channel
-    radio_set_channel(fhop_receive_channel());
-    
-    // re-enable the receiver
-    radio_receiver_on();
-    
   }
-#endif // RADIO_SPLAT_TESTING_MODE
 }
-
 #if 0
 /// build the timing table
 static void 
