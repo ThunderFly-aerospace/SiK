@@ -117,6 +117,9 @@ __pdata struct radio_settings settings;
 static bool	software_reset(void);
 static void	set_frequency_registers(__pdata uint32_t base_freq, __pdata uint32_t freq_spacing);
 
+enum DIVERSITY_Enum diversity_saved;
+static void radio_set_diversity_gpio(enum DIVERSITY_Enum state);
+
 #define TX_FIFO_THRESHOLD 0x40
 #define RX_FIFO_THRESHOLD 0x40
 
@@ -328,6 +331,7 @@ radio_transmit_simple(uint8_t length, __xdata uint8_t * __pdata buf, __pdata uin
 	__pdata uint16_t tstart;
 	__data uint8_t n, len_remaining;
 	uint8_t chip_status, ph_status, tx_space;
+	int16_t ant1, ant2;
 
         tstart = timer2_tick();
 
@@ -337,6 +341,17 @@ radio_transmit_simple(uint8_t length, __xdata uint8_t * __pdata buf, __pdata uin
 	wait_for_cts();
 
 	EX0_RESTORE;
+
+	if (diversity_saved == DIVERSITY_ENABLED) {
+		cmd_get_modem_status(0xff);
+		get_modem_status_reply(
+			_skip, _skip, _skip, _skip, ant1, ant2, _skip
+		);
+		if (ant2 > ant1)
+			radio_set_diversity_gpio(DIVERSITY_ANT2);
+		else
+			radio_set_diversity_gpio(DIVERSITY_ANT1);
+	}
 
 	cmd_get_int_status_clear_all();
 	wait_for_cts();
@@ -393,6 +408,7 @@ radio_transmit_simple(uint8_t length, __xdata uint8_t * __pdata buf, __pdata uin
 		}
 
 		if (ph_status & PH_STATUS_PACKET_SENT) {
+			radio_set_diversity_gpio(diversity_saved);
 			return true;
 		}
 	}
@@ -407,6 +423,10 @@ error:
 	/* exit from TX state */
 	cmd_change_state(STATE_READY);
 	wait_for_cts();
+
+	if (diversity_saved == DIVERSITY_ENABLED) {
+		radio_set_diversity_gpio(diversity_saved);
+	}
 
 	/* here we assume we are out of TX state, so that the FIFO reset is safe to do */
 	cmd_fifo_info(0x03);
@@ -551,8 +571,25 @@ check_part(void) __reentrant
 	return part == 0x4463;
 }
 
-static void radio_gpio_init()
+// initialise the radio hardware
+//
+bool
+radio_initialise(void)
 {
+	/* TODO: check timing */
+	SDN = 1;
+	delay_msec(1);
+	SDN = 0;
+	delay_msec(6);
+
+	wait_for_cts();
+
+	cmd_power_up(0x1, 0x0, 30000000);
+	wait_for_cts();
+
+	if (!check_part())
+		return false;
+
 	cmd_set_property4(GROUP_FRR_CTL, 0x0,
 		10, /* FRR A = latched RSSI */
 		7, /* FRR B = INT_CHIP_STATUS */
@@ -579,39 +616,6 @@ static void radio_gpio_init()
 
 	cmd_set_property1(GROUP_GLOBAL, 0x01, 0x48);
 	wait_for_cts();
-
-	cmd_gpio_pin_cfg(
-                0x40 | GPIO_0_CONFIG,
-                0x40 | GPIO_1_CONFIG,
-                0x40 | 8, // 2: CTS
-		0x40 | 33, // GPIO4: RX state
-		39, // nIRQ
-		0, // SDO
-		2
-	);
-        wait_for_cts();
-}
-
-// initialise the radio hardware
-//
-bool
-radio_initialise(void)
-{
-	/* TODO: check timing */
-	SDN = 1;
-	delay_msec(1);
-	SDN = 0;
-	delay_msec(6);
-
-	wait_for_cts();
-
-	cmd_power_up(0x1, 0x0, 30000000);
-	wait_for_cts();
-
-	if (!check_part())
-		return false;
-
-        radio_gpio_init();
 
 	return true;
 }
@@ -816,7 +820,7 @@ radio_configure(__pdata uint8_t air_rate)
 	cmd_fifo_info(0x03);
 	wait_for_cts();
 
-        radio_gpio_init();
+	radio_set_diversity(DIVERSITY_ENABLED);
 
 	return true;
 }
@@ -1002,19 +1006,58 @@ radio_temperature(void)
 	return 0;
 }
 
-/// Turn off radio diversity
-///
+#define GPIO_DRIVE0 2
+#define GPIO_DRIVE1 3
+#define GPIO_RX_RAW_DATA 21
+#define GPIO_PKT_TRACE 29
+#define GPIO_ANT_1_SW 22
+#define GPIO_ANT_2_SW 23
+#define GPIO_VALID_PREAMBLE 24
+#define GPIO_TX_STATE 32
+#define GPIO_RX_STATE 33
+
+static void
+radio_set_diversity_gpio(enum DIVERSITY_Enum state)
+{
+	if (state != DIVERSITY_ANT2) {
+		cmd_gpio_pin_cfg(
+			0x40 | GPIO_ANT_1_SW,
+			0x40 | GPIO_ANT_2_SW,
+			0x40 | GPIO_RX_STATE,
+			0x40 | GPIO_TX_STATE,
+			39, // nIRQ
+			0, // SDO
+			2 << 5
+		);	
+	} else {
+		cmd_gpio_pin_cfg(
+			0x40 | GPIO_ANT_2_SW,
+			0x40 | GPIO_ANT_1_SW,
+			0x40 | GPIO_RX_STATE,
+			0x40 | GPIO_TX_STATE,
+			39, // nIRQ
+			0, // SDO
+			2 << 5
+		);
+	}
+	wait_for_cts();
+}
+
 void
 radio_set_diversity(enum DIVERSITY_Enum state)
 {
-  switch (state) {
-    case DIVERSITY_ENABLED:
-    case DIVERSITY_ANT2:
-    case DIVERSITY_DISABLED:
-    case DIVERSITY_ANT1:
-    default:
-      break;
-  }
+	EX0_SAVE_DISABLE;
+	/* evaluate strength on both antennas, no bias towards first antenna */
+	cmd_set_property2(
+		GROUP_MODEM, 0x48, 
+		0x1, // value for ANT_DIV_MODE
+		0x8 | (state == DIVERSITY_ENABLED) << 2
+	);
+	wait_for_cts();
+
+	radio_set_diversity_gpio(state);
+	diversity_saved = state;
+	EX0_RESTORE;
 }
 
 /*
