@@ -35,11 +35,11 @@ Currently the firmware components include:
 |+++    | |Entering bootloader mode. Could be tested by sending AT, reply should be OK|
 |RT     | |remote AT command - send it to the tdm, system to send to the remote radio |
 |AT&F   | |  Restore default parameters |
-|AT&W| | Write parameters to the flash memory | 
+|AT&W| | Write parameters to the flash memory |
 |AT&U | | Erase Flash signature forcing it into reprogram mode next reset |
 |AT&P | | TDM change phase |
 |AT&T | AT&T <br> AT&T=RSSI <br> AT&T=TDM |  disable all test modes <br> display RSSI stats <br> display TDM debug ) |
-|AT&E | AT&E?  <br> AT&E= | Print_encryption_key <br> Set encryption key | 
+|AT&E | AT&E?  <br> AT&E= | Print_encryption_key <br> Set encryption key |
 |AT+ | AT+P= <br> AT+Cx=y <br> AT+Fx? <br> AT+L <br> AT+A |  set power level pwm to x immediately <br>  write calibration value <br> get calibration value <br> lock bootloader area if all calibrations written <br> RFD900 antenna diversity  |
 |ATI0| | banner_string |
 |ATI1| | version_string  |
@@ -66,15 +66,23 @@ Up to date AT command processig is located in [at.c](Firmware/radio/at.c) source
  - [Mono](http://www.mono-project.com/) to build and run the GUI firmware updater.
  - Python to run the command-line firmware updater.
 
-Note that at this time, building on Windows systems is not supported.  If someone wants to contribute and maintain the necessary pieces that would be wonderful.
-
 ## Building Things
+
+### Linux (Ubuntu)
+
+Install SDCC compiler.
+
+    sudo apt-get install sdcc
 
 Type `make install` in the Firmware directory.  If all is well, this will produce a folder called `dst` containing bootloader and firmware images.
 
 If you want to fine-tune the build process, `make help` will give you more details.
 
 Building the SiK firmware generates bootloaders and firmware for each of the supported boards. Many boards are available tuned to specific frequencies, but have no way for software on the Si1000 to detect which frequency the board is configured for. In this case, the build will produce different versions of the bootloader for each board. It's important to select the correct bootloader version for your board if this is the case.
+
+### Windows
+
+At this time, building on Windows systems is not supported.  If someone wants to contribute and maintain the necessary pieces that would be wonderful.
 
 ## Flashing and Uploading
 

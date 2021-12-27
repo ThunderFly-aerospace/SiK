@@ -34,7 +34,7 @@
 
 /// @file	board.h
 ///		Board definitions for the ISM01A board
- 
+
 #ifndef _BOARD_ISM01A_H
 #define _BOARD_ISM01A_H
 
@@ -53,6 +53,10 @@ SBIT(LED_RED,	   SFR_P1, 4);
 SBIT(LED_GREEN,	   SFR_P1, 5);
 SBIT(PIN_CONFIG,   SFR_P0, 2);
 SBIT(PIN_ENABLE,   SFR_P0, 3);
+
+// Serial flow control
+#define SERIAL_RTS	PIN_ENABLE	// always an input
+#define SERIAL_CTS	PIN_CONFIG	// input in bootloader, output in app
 
 // Signal polarity definitions
 #define LED_ON		1
