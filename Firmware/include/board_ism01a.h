@@ -46,7 +46,7 @@
 #define CPU_SI1060
 
 #define BOARD_MINTXPOWER 0		// Minimum transmit power level
-#define BOARD_MAXTXPOWER 0x7f	// Maximum transmit power level
+#define BOARD_MAXTXPOWER 20		// Maximum transmit power level
 
 // GPIO definitions (not exported)
 SBIT(LED_RED,	   SFR_P1, 4);
