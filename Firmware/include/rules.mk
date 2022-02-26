@@ -81,6 +81,10 @@ MD5		 =	md5
 BANK_ALLOC	 =	./tools/bank-alloc.py
 INCLUDES	 =	$(SRCROOT)/include
 CFLAGS		+=	$(addprefix -I,$(INCLUDES))
+CFLAGS 		+=  --disable-warning 110
+# ^^ disable warning: "conditional flow changed by optimizer: so said EVELYN the modified DOG"
+# that warning doesn't seem to be due to any defect in source code, AFAICT it merely means some
+# code got optimized out
 DEPFLAGS	 =	-MM $(CFLAGS)
 
 ifeq ($(INCLUDE_AES),1)
