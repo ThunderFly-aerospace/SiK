@@ -1,4 +1,4 @@
-#SiK - Firmware for SiLabs Si1000 - Si102x/3x/6x ISM radios
+# SiK - Firmware for SiLabs Si1000 - Si102x/3x/6x ISM radios
 
 SiK is a collection of firmware and tools for radios based on the cheap, versatile SiLabs Si1000 and Si1060 SoC.
 
