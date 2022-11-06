@@ -18,7 +18,7 @@ Adding support for additional boards should not be difficult.
 
 Currently the firmware components include:
 
- - A bootloader with support for firmware upgrades over the serial interface.
+ - A bootloader with support for firmware upgrades over the serial interface. It also holds board specific configuration like a working frequency band. Therefore are multiple bootloaders for the same modem type. 
  - Radio firmware with support for parsing AT commands, storing parameters and FHSS/TDM functionality
 
 ### AT commands
@@ -55,7 +55,7 @@ Up to date AT command processig is located in [at.c](Firmware/radio/at.c) source
  - At least two Si1000 - Si102x/3x - based radio devices (just one radio by itself is not very useful).
  - A [SiLabs USB debug adapter](http://www.silabs.com/products/mcu/Pages/USBDebug.aspx).
  - [SDCC](http://sdcc.sourceforge.net/), version 3.1.0 or later.
- - [EC2Tools](https://github.com/ThunderFly-aerospace/ec2)
+ - [EC2Tools](https://github.com/ThunderFly-aerospace/ec2) or SiLabs debug adapter utility to flash a bootloader to a fresh modem hardware.
  - [Mono](http://www.mono-project.com/) to build and run the GUI firmware updater.
  - Python to run the command-line firmware updater.
 
