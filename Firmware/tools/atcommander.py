@@ -8,7 +8,8 @@
 #
 
 # Modules used by the class
-import serial, sys, time, fdpexpect
+import serial, sys, argparse, time, pexpect
+from pexpect import fdpexpect
 
 class ATCommandSet(object):
     ''' Interface to the AT command set '''
