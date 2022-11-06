@@ -23,6 +23,9 @@ Currently the firmware components include:
 
 ### AT commands
 
+Most of commands can be controlled by '/tools/atcommander.py' utility.  To run install following requirements: 
+    python3 -m pip install pexpect serial
+
 |Command| Variants| Function |
 |-------|--------|----------|
 |+++    | |Entering bootloader mode. Could be tested by sending AT, reply should be OK|
