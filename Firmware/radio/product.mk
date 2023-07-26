@@ -27,13 +27,12 @@
 # Makefile for the Si1000 radio application
 #
 
-VERSION_MAJOR	 =	2
-VERSION_MINOR	 =	2
+VERSION		= $(git describe --tags --always --dirty)
 
 PRODUCT		 =	radio~$(BOARD)
 PRODUCT_DIR	:=	$(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
 
-CFLAGS		+=	-DAPP_VERSION_HIGH=$(VERSION_MAJOR) -DAPP_VERSION_LOW=$(VERSION_MINOR)
+CFLAGS		+=	-DAPP_VERSION=$(VERSION)
 CFLAGS		+=	$(CFLAG_MODEL) --opt-code-speed --Werror --std-sdcc99 --fomit-frame-pointer
 #CFLAGS		+=	--fverbose-asm 
 PRODUCT_SUPPORT_BANKING = 1
