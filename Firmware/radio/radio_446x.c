@@ -837,7 +837,7 @@ radio_configure(__pdata uint8_t air_rate)
 	cmd_fifo_info(0x03);
 	wait_for_cts();
 
-#if defined(BOARD_ism01a)
+#if defined(BOARD_ism01a) || defined(BOARD_tfsik01a)
 	radio_set_diversity(DIVERSITY_ENABLED);
 #else
 	radio_set_diversity(DIVERSITY_DISABLED);
