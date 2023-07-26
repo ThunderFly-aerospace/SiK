@@ -5,7 +5,8 @@ import time
 import random
 import sys
 
-r1 = serial.Serial("/dev/ttyUSB0", baudrate=57600, timeout=0)
+port1 = "/dev/ttyUSB0" if len(sys.argv) < 2 else sys.argv[1]
+r1 = serial.Serial(port1, baudrate=57600, timeout=0)
 
 def query(r, cmd):
 	r.write(cmd + b"\r")
