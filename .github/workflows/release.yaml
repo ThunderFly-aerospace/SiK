@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+    permissions:
+      contents: write
+
+jobs:
+  build-firmware:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install dependencies
+      run: |
+        sudo apt update && sudo apt install -y sdcc build-essential zip python2
+    - name: Build
+      run: |
+        make -C Firmware/ all install
+    - name: Compress
+      run: |
+        mkdir -p $ARCHIVE
+        cp Firmware/dst/* $ARCHIVE/
+        zip -o $ARCHIVE.zip -r $ARCHIVE/
+      env:
+        ARCHIVE: sik-${{ github.event.release.tag_name }}
+    - name: Upload
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: sik-${{ github.event.release.tag_name }}.zip
+        asset_name: sik-${{ github.event.release.tag_name }}.zip
+        asset_content_type: binary/octet-stream

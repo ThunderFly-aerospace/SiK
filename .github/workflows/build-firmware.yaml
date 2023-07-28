@@ -1,0 +1,17 @@
+name: Build firmware
+
+on:
+  push:
+    branches: [ "*" ]
+
+jobs:
+  build-firmware:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install dependencies
+      run: |
+        sudo apt update && sudo apt install -y sdcc build-essential
+    - name: Build
+      run: |
+        make -C Firmware/ all
