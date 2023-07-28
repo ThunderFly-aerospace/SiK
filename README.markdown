@@ -20,27 +20,28 @@ Currently, it supports the following boards:
  - RFD900u
  - RFD900p
  - [MLAB ISM01A](https://www.mlab.cz/module/ISM01A)
+ - [ThunderFly TFSIK01](https://github.com/ThunderFly-aerospace/TFSIK01) - UAV dual antenna diversity sub-GHz radio modem. 
 
 Adding support for additional boards should not be difficult.
 
-Currently the firmware components include:
+Currently, the firmware components include:
 
  - A bootloader with support for firmware upgrades over the serial interface.
- - Radio firmware with support for parsing AT commands, storing parameters and FHSS/TDM functionality
+ - Radio firmware with support for parsing AT commands, storing parameters, and FHSS/TDM functionality
 
 ### AT commands
 
 |Command| Variants| Function |
 |-------|--------|----------|
 |+++    | |Entering bootloader mode. Could be tested by sending AT, reply should be OK|
-|RT     | |remote AT command - send it to the tdm, system to send to the remote radio |
+|RT     | |remote AT command - send it to the TDM, system to send to the remote radio |
 |AT&F   | |  Restore default parameters |
 |AT&W| | Write parameters to the flash memory | 
 |AT&U | | Erase Flash signature forcing it into reprogram mode next reset |
 |AT&P | | TDM change phase |
 |AT&T | AT&T <br> AT&T=RSSI <br> AT&T=TDM |  disable all test modes <br> display RSSI stats <br> display TDM debug ) |
 |AT&E | AT&E?  <br> AT&E= | Print_encryption_key <br> Set encryption key | 
-|AT+ | AT+P= <br> AT+Cx=y <br> AT+Fx? <br> AT+L <br> AT+A |  set power level pwm to x immediately <br>  write calibration value <br> get calibration value <br> lock bootloader area if all calibrations written <br> RFD900 antenna diversity  |
+|AT+ | AT+P= <br> AT+Cx=y <br> AT+Fx? <br> AT+L <br> AT+A |  set power level PWR to x immediately <br>  write calibration value <br> get calibration value <br> lock bootloader area if all calibrations written <br> RFD900 antenna diversity  |
 |ATI0| | banner_string |
 |ATI1| | version_string  |
 |ATI2| | BOARD_ID |
@@ -54,7 +55,7 @@ Currently the firmware components include:
 |ATS | ATS? <br> ATS= | <br> Set a parameter  |
 |ATZ | | Generate a software reset    |
 
-Up to date AT command processig is located in [at.c](Firmware/radio/at.c) source code.
+Up-to-date AT command processing is located in [at.c](Firmware/radio/at.c) source code.
 
 ## What You Will Need
 
@@ -74,7 +75,7 @@ Type `make install` in the Firmware directory.  If all is well, this will produc
 
 If you want to fine-tune the build process, `make help` will give you more details.
 
-Building the SiK firmware generates bootloaders and firmware for each of the supported boards. Many boards are available tuned to specific frequencies, but have no way for software on the Si1000 to detect which frequency the board is configured for. In this case, the build will produce different versions of the bootloader for each board. It's important to select the correct bootloader version for your board if this is the case.
+Building the SiK firmware generates bootloaders and firmware for each of the supported boards. Many boards are available tuned to specific frequencies but have no way for software on the Si1000 to detect which frequency the board is configured for. In this case, the build will produce different versions of the bootloader for each board. It's important to select the correct bootloader version for your board if this is the case.
 
 ## Flashing and Uploading
 
@@ -100,7 +101,7 @@ Take a look at `Firmware/include/board_*.h` for the details of what board suppor
 
 ## Resources
 
-SiLabs have an extensive collection of documentation, application notes and sample code available online.
+SiLabs have an extensive collection of documentation, application notes, and sample code available online.
 
 Start at the [Si1000 product page](http://www.silabs.com/products/wireless/wirelessmcu/Pages/Si1000.aspx) or [Si102x/3x product page](http://www.silabs.com/products/wireless/wirelessmcu/Pages/Si102x-3x.aspx)
 
