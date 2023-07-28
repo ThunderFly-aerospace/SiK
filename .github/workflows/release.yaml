@@ -24,13 +24,13 @@ jobs:
         cp Firmware/dst/* $ARCHIVE/
         zip -o $ARCHIVE.zip -r $ARCHIVE/
       env:
-        ARCHIVE: sik-${{ github.event.release.tag_name }}
+        ARCHIVE: SiK-Firmware-${{ github.event.release.tag_name }}
     - name: Upload
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: sik-${{ github.event.release.tag_name }}.zip
-        asset_name: sik-${{ github.event.release.tag_name }}.zip
+        asset_path: SiK-Firmware-${{ github.event.release.tag_name }}.zip
+        asset_name: SiK-Firmware-${{ github.event.release.tag_name }}.zip
         asset_content_type: binary/octet-stream
