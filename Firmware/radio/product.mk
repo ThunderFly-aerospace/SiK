@@ -27,7 +27,7 @@
 # Makefile for the Si1000 radio application
 #
 
-VERSION		= $(git describe --tags --always --dirty)
+VERSION		= $(shell git describe --tags --always --dirty)
 
 PRODUCT		 =	radio~$(BOARD)
 PRODUCT_DIR	:=	$(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
