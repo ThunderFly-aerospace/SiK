@@ -58,29 +58,27 @@ Up-to-date AT command processing is located in [at.c](Firmware/radio/at.c) sourc
 
 #### Example of parameters read
 
-  picocom /dev/ttyUSB0 -b 57600
-  +++
-  OK
-  ATI5
-  S0:FORMAT=26
-  S1:SERIAL_SPEED=57
-  S2:AIR_SPEED=64
-  S3:NETID=25
-  S4:TXPOWER=20
-  S5:ECC=0
-  S6:MAVLINK=1
-  S7:OPPRESEND=0
-  S8:MIN_FREQ=433050
-  S9:MAX_FREQ=434790
-  S10:NUM_CHANNELS=10
-  S11:DUTY_CYCLE=100
-  S12:LBT_RSSI=0
-  S13:MANCHESTER=0
-  S14:RTSCTS=0
-  S15:MAX_WINDOW=131
+    picocom /dev/ttyUSB0 -b 57600
+    +++
+    OK
+    ATI5
+    S0:FORMAT=26
+    S1:SERIAL_SPEED=57
+    S2:AIR_SPEED=64
+    S3:NETID=25
+    S4:TXPOWER=20
+    S5:ECC=0
+    S6:MAVLINK=1
+    S7:OPPRESEND=0
+    S8:MIN_FREQ=433050
+    S9:MAX_FREQ=434790
+    S10:NUM_CHANNELS=10
+    S11:DUTY_CYCLE=100
+    S12:LBT_RSSI=0
+    S13:MANCHESTER=0
+    S14:RTSCTS=0
+    S15:MAX_WINDOW=131
  
-
-
 ## What You Will Need to Development
 
  - A Mac OS X or Linux system for building.  Mac users will need the Developer Tools (Xcode) installed.
