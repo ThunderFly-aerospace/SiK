@@ -589,7 +589,7 @@ at_plus(void)
     }
     return;
 #endif //BOARD_rfd900a / BOARD_rfd900p
-#if defined RFD900_DIVERSITY || defined BOARD_ism01a
+#if defined RFD900_DIVERSITY || defined BOARD_ism01a || defined TFSIK01A
   case 'A':
     if (at_cmd[4] != '=')
     {
