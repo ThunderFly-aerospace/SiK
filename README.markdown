@@ -1,13 +1,12 @@
-SiK
-=====
-Firmware for SiLabs Si1000 - Si102x/3x/6x ISM radios
+# SiK - Firmware for SiLabs Si1000 - Si102x/3x/6x ISM radios commonly used for Telemetry data transfer
+
+[![Build firmware](https://github.com/ThunderFly-aerospace/SiK/actions/workflows/build-firmware.yaml/badge.svg)](https://github.com/ThunderFly-aerospace/SiK/actions/workflows/build-firmware.yaml)
+
+
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ArduPilot/SiK?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 SiK is a collection of firmware and tools for radios based on the cheap, versatile SiLabs Si1000 and Si1060 SoC.
-
-## Branch Build Status
-[![Build Status](http://jenkins.hovo.id.au/buildStatus/icon?job=SiK)](http://jenkins.hovo.id.au/job/SiK/)
 
 ## Documentation
 For user documentation please see [ardupilot docs](http://ardupilot.org/copter/docs/common-sik-telemetry-radio.html)
@@ -57,7 +56,32 @@ Currently, the firmware components include:
 
 Up-to-date AT command processing is located in [at.c](Firmware/radio/at.c) source code.
 
-## What You Will Need
+#### Example of parameters read
+
+  picocom /dev/ttyUSB0 -b 57600
+  +++
+  OK
+  ATI5
+  S0:FORMAT=26
+  S1:SERIAL_SPEED=57
+  S2:AIR_SPEED=64
+  S3:NETID=25
+  S4:TXPOWER=20
+  S5:ECC=0
+  S6:MAVLINK=1
+  S7:OPPRESEND=0
+  S8:MIN_FREQ=433050
+  S9:MAX_FREQ=434790
+  S10:NUM_CHANNELS=10
+  S11:DUTY_CYCLE=100
+  S12:LBT_RSSI=0
+  S13:MANCHESTER=0
+  S14:RTSCTS=0
+  S15:MAX_WINDOW=131
+ 
+
+
+## What You Will Need to Development
 
  - A Mac OS X or Linux system for building.  Mac users will need the Developer Tools (Xcode) installed.
  - At least two Si1000 - Si102x/3x - based radio devices (just one radio by itself is not very useful).
@@ -67,7 +91,7 @@ Up-to-date AT command processing is located in [at.c](Firmware/radio/at.c) sourc
  - [Mono](http://www.mono-project.com/) to build and run the GUI firmware updater.
  - Python to run the command-line firmware updater.
 
-Note that at this time, building on Windows systems is not supported.  If someone wants to contribute and maintain the necessary pieces that would be wonderful.
+Just so you know, at this time, building on Windows systems is not supported if someone wants to contribute and maintain the necessary pieces that would be wonderful.
 
 ## Building Things
 
@@ -107,7 +131,7 @@ Start at the [Si1000 product page](http://www.silabs.com/products/wireless/wirel
 
 ## Reporting Problems
 
-Please use the GitHub issues link at the top of the [project page](http://github.com/tridge/SiK) to report any problems with, or to make suggestions about SiK.  I encourage you to fork the project and make whatever use you may of it.
+Please use the GitHub issues link at the top of the GitHub project page to report any problems with, or to make suggestions about SiK.  I encourage you to fork the project and make whatever use you may of it.
 
 ## What does SiK mean?
 
