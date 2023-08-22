@@ -81,6 +81,8 @@ Up-to-date AT command processing is located in [at.c](Firmware/radio/at.c) sourc
 
 #### Example of parameter write
 
+Change the number of channels to one. (eg. disable channel hopping)
+
     ATS10=1
     OK
     ATI5
@@ -103,6 +105,13 @@ Up-to-date AT command processing is located in [at.c](Firmware/radio/at.c) sourc
     AT&W
     OK
     ATZ
+
+Change antenna diversity mode (specific command for [ThunderFly TFSIK01](https://github.com/ThunderFly-aerospace/TFSIK01) with dual antenna): 
+
+    AT+A=1
+    OK
+    AT+A=2
+    OK
  
 ## What You Will Need to Development
 
