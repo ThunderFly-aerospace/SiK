@@ -48,6 +48,7 @@
 // GPIO definitions (not exported)
 SBIT(LED_RED,	   SFR_P1, 4);
 SBIT(LED_GREEN,	   SFR_P1, 5);
+SBIT(LED_ORANGE,   SFR_P1, 6);
 SBIT(PIN_CONFIG,   SFR_P0, 2);
 SBIT(PIN_ENABLE,   SFR_P0, 3);
 
