@@ -1038,6 +1038,9 @@ radio_set_diversity_gpio(enum DIVERSITY_Enum state)
 	default:
 		ant1 = GPIO_ANT_1_SW;
 		ant2 = GPIO_ANT_2_SW;
+#if defined(LED_DIVERSITY)
+        LED_DIVERSITY = LED_OFF;
+#endif
 		break;
 
 	case DIVERSITY_ANT2:
@@ -1048,6 +1051,9 @@ radio_set_diversity_gpio(enum DIVERSITY_Enum state)
 		 */
 		ant1 = GPIO_ANT_2_SW;
 		ant2 = GPIO_ANT_1_SW;
+#if defined(LED_DIVERSITY)
+        LED_DIVERSITY = LED_ON;
+#endif
 		break;
 	}
 

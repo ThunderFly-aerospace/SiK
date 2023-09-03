@@ -65,6 +65,7 @@ SBIT(PIN_ENABLE,   SFR_P0, 3);
 #define LED_BOOTLOADER	LED_RED
 #define LED_RADIO		LED_GREEN
 #define LED_ACTIVITY	LED_RED
+#define LED_DIVERSITY	LED_ORANGE
 #define BUTTON_BOOTLOAD	PIN_CONFIG
 
 // board-specific hardware config
