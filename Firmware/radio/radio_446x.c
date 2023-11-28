@@ -1008,7 +1008,7 @@ INTERRUPT(Receiver_ISR, INTERRUPT_INT0)
 	uint8_t rx_fifo_count;
 
 	/* only clear pending bits we handle here */
-	cmd_get_int_status(~RX_INT0_PH_MASK, ~RX_INT0_MODEM_MASK, 0xff);
+	cmd_get_int_status((uint8_t)~RX_INT0_PH_MASK, (uint8_t)~RX_INT0_MODEM_MASK, 0xff);
 	get_int_status_reply(_skip, _skip, ph_pend, ph_status, modem_pend,
 						  _skip, _skip, _skip);
 

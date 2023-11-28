@@ -99,7 +99,7 @@ bl_main(void)
 	// Do some simple debouncing on the bootloader-entry
 	// strap/button.
 	debounce_count = 0;
-	for (i = 0; i < 255; i++) {
+	for (i = 0u; i < 255u; i++) {
 		if (BUTTON_BOOTLOAD == BUTTON_ACTIVE)
 			debounce_count++;
 	}
@@ -178,8 +178,8 @@ bootloader(void)
 
 	switch (c) {
 
-	case PROTO_GET_SYNC:		// sync
-		break;
+	/*case PROTO_GET_SYNC:		// sync
+		break;*/
 
 	case PROTO_GET_DEVICE:
 		cout(BOARD_ID);
