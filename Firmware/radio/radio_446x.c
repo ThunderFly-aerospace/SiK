@@ -77,6 +77,18 @@
 #define CHIP_STATUS_STATE_CHANGE					(1<<4)
 #define CHIP_STATUS_CMD_ERROR						(1<<3)
 
+/* available GPIO pin configurations */
+#define GPIO_DRIVE0		2
+#define GPIO_DRIVE1		3
+#define GPIO_CTS		8
+#define GPIO_RX_RAW_DATA	21
+#define GPIO_PKT_TRACE		29
+#define GPIO_ANT_1_SW		22
+#define GPIO_ANT_2_SW		23
+#define GPIO_VALID_PREAMBLE	24
+#define GPIO_TX_STATE		32
+#define GPIO_RX_STATE		33
+
 #include "radio.h"
 #include "timer.h"
 #include "golay.h"
@@ -598,11 +610,10 @@ radio_initialise(void)
 	wait_for_cts();
 
 	cmd_gpio_pin_cfg(
-		0x40 | 32, // 0: TX_STATE
-		0x40 | 35, // 1: TX_FIFO_EMPTY
-		//33, // 1: RX_STATE
-		0x40 | 8, // 2: CTS
-		0x40 | 33, // GPIO4: RX state
+		0x40 | GPIO_0_CONFIG,
+		0x40 | GPIO_1_CONFIG,
+		0x40 | GPIO_2_CONFIG,
+		0x40 | GPIO_3_CONFIG,
 		39, // nIRQ
 		0, // SDO
 		2
