@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       # git checkout the PR
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
 
       - name: Install sdcc
         run: |
@@ -20,7 +20,7 @@ jobs:
           tests/test_build.sh
 
       - name: Archive build binaries
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: SiK build
           path: |
