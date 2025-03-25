@@ -50,7 +50,7 @@ Currently, the firmware components include:
 |ATI6| | TDM timing |
 |ATI7| | Show RSSI |
 |ATP |  ATPx=O <br> ATPx=I <br> ATPx=R <br> ATPx=Cx | Set pin to output, turn mirroring off pulling pin to ground    |
-|ATO | |    |
+|ATO | |  Go on-air (exit command mode)  |
 |ATS | ATS? <br> ATS= | <br> Set a parameter  |
 |ATZ | | Generate a software reset    |
 
