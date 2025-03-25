@@ -40,7 +40,7 @@ Currently, the firmware components include:
 |AT&P | | TDM change phase |
 |AT&T | AT&T <br> AT&T=RSSI <br> AT&T=TDM |  disable all test modes <br> display RSSI stats <br> display TDM debug ) |
 |AT&E | AT&E?  <br> AT&E= | Print_encryption_key <br> Set encryption key | 
-|AT+ | AT+P= <br> AT+Cx=y <br> AT+Fx? <br> AT+L <br> AT+A |  set power level PWR to x immediately <br>  write calibration value <br> get calibration value <br> lock bootloader area if all calibrations written <br> RFD900 antenna diversity  |
+|AT+ | AT+P= <br> AT+Cx=y <br> AT+Fx? <br> AT+L <br> AT+A |  set power level PWR to x immediately <br>  write calibration value <br> get calibration value <br> lock bootloader area if all calibrations written <br> Select antenna and override diversity  |
 |ATI0| | banner_string |
 |ATI1| | version_string  |
 |ATI2| | BOARD_ID |
