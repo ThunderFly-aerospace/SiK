@@ -32,7 +32,7 @@ Currently, the firmware components include:
 
 |Command| Variants| Function |
 |-------|--------|----------|
-|+++    | |Entering bootloader mode. Could be tested by sending AT, reply should be OK|
+|+++    | |Entering command mode. This could be tested by sending AT, the reply should be OK. To prevent data being seen as the command sequence there is a guard time required, so make sure you type nothing on the serial link for 1 second before and after you enter the sequence.|
 |RT     | |remote AT command - send it to the TDM, system to send to the remote radio |
 |AT&F   | |  Restore default parameters |
 |AT&W| | Write parameters to the flash memory | 
