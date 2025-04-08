@@ -21,18 +21,41 @@ Currently, it supports the following boards:
  - [MLAB ISM01A](https://www.mlab.cz/module/ISM01A)
  - [ThunderFly TFSIK01](https://github.com/ThunderFly-aerospace/TFSIK01) - UAV dual antenna diversity sub-GHz radio modem. 
 
-Adding support for additional boards should not be difficult.
-
 Currently, the firmware components include:
 
  - A bootloader with support for firmware upgrades over the serial interface.
  - Radio firmware with support for parsing AT commands, storing parameters, and FHSS/TDM functionality
+ - Set of tools for testing and configuration.
+
+### How it works
+
+The TFSIK01 telemetry modem operates using a combination of Frequency Hopping Spread Spectrum ([FHSS](https://en.wikipedia.org/wiki/Frequency-hopping_spread_spectrum)) and adaptive Time Division Multiplexing ([TDM](https://en.wikipedia.org/wiki/Time-division_multiplexing)) with Gaussian Frequency Shift Keying ([GFSK](https://en.wikipedia.org/wiki/Frequency-shift_keying#Gaussian_frequency-shift_keying)) modulation. A combination of those methods provides a robust and interference-resistant radio communication link for UAV telemetry.
+
+The FHSS implementation divides the user-specified frequency band between `MIN_FREQ + δ` and `MAX_FREQ - δ` into a defined number of discrete channels (`NUM_CHANNELS`), where δ is a guard value equal to half the calculated channel width. This ensures that the radio remains within the safe central portion of the frequency band, avoiding spurious emissions near the band edges. The channel width is determined by:
+
+    channel_width = (MAX_FREQ - MIN_FREQ) / (NUM_CHANNELS + 2)
+
+To provide frequency isolation between different network IDs (`NETID`), each modem applies a unique base frequency offset, up to one full channel width, derived from a pseudo-random seed based on the `NETID` value. This mechanism ensures that two radio links operating in the same physical space but with different `NETID` values will operate on slightly displaced sets of hopping frequencies.
+
+To coordinate transmission and avoid collisions, the modem implements synchronous TDM. The radios divide time into discrete slices using a clock with a resolution of 16 µs. Each complete TDM cycle includes one radio's transmission slot, followed by a silence period, and then the other radio's transmission slot. The radios switch to the next frequency channel twice per TDM round.  The channel changes occur during each silence period. This approach guarantees that both radios never transmit simultaneously.
+
+Clock synchronization between radios is achieved by embedding a 13-bit timestamp (in 16 µs units) in each transmitted packet. This allows both radios to maintain aligned timebases for TDM operation. The channel hopping sequence itself is randomized using a permutation based on `NETID`.
+
+TDM parameters such as the transmission window and silence period are determined by stored parameter values and are scaled according to the selected data rate. These values are used to ensure regulatory compliance—particularly the maximum time of occupancy (dwell time) per frequency channel, which is limited to 0.4 seconds under U.S. rules.
+
+The size of the transmit window is scaled to allow the transmission of up to three full MAVLink packets. The following silence period is set to twice the expected packet latency based on the configured data rate, which allows time for signal settling, and channel switching, and minimizes the chance of interference during transitions.
+
+To manage serial data efficiently, the modem uses a 2048-byte buffer to hold incoming UART data. The modem monitors buffer fill levels and communicates this status back to the host system. Flight controller software like PX4 and Ardupilot can then adapt telemetry message rates dynamically to avoid overfilling the buffer and to optimize link latency.
+
+The TDM implementation is adaptive: when one radio has no data to send during its slot, it can transfer control to the peer by sending a token indicating that it yields the remaining timeslice. This allows the link to automatically rebalance in response to asymmetric traffic loads.
+
+During initial startup or after a link is lost, the radios enter a scanning mode. One radio transmits using its normal hopping pattern, while the receiver slowly steps through possible receive frequencies to locate the signal. Once detected, the receiver synchronizes its clock and begins coordinated TDM operation. The time required to re-establish a link depends on the number of hopping channels, the air data rate, and the current packet loss conditions.
 
 ### AT commands
 
 |Command| Variants| Function |
 |-------|--------|----------|
-|+++    | |Entering command mode. This could be tested by sending AT, the reply should be OK. To prevent data being seen as the command sequence there is a guard time required, so make sure you type nothing on the serial link for 1 second before and after you enter the sequence.|
+|+++    | |Entering command mode. This could be tested by sending AT, the reply should be OK. To prevent data from being seen as the command sequence, a guard time is required, so make sure you type nothing on the serial link for 1 second before and after entering the sequence.|
 |RT     | |remote AT command - send it to the TDM, system to send to the remote radio |
 |AT&F   | |  Restore default parameters |
 |AT&W| | Write parameters to the flash memory | 
@@ -157,7 +180,7 @@ Take a look at `Firmware/include/board_*.h` for the details of what board suppor
 
 ## Resources
 
-SiLabs have an extensive collection of documentation, application notes, and sample code available online.
+SiLabs has an extensive collection of documentation, application notes, and sample code available online.
 
 Start at the [Si1000 product page](http://www.silabs.com/products/wireless/wirelessmcu/Pages/Si1000.aspx) or [Si102x/3x product page](http://www.silabs.com/products/wireless/wirelessmcu/Pages/Si102x-3x.aspx)
 
