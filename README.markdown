@@ -142,7 +142,7 @@ Change antenna diversity mode (specific command for [ThunderFly TFSIK01](https:/
  - At least two Si1000 - Si102x/3x - based radio devices (just one radio by itself is not very useful).
  - A [SiLabs USB debug adapter](http://www.silabs.com/products/mcu/Pages/USBDebug.aspx).
  - [SDCC](http://sdcc.sourceforge.net/), version 3.1.0 or later.
- - [EC2Tools](https://github.com/SamwelOpiyo/ec2)
+ - [EC2Tools](https://github.com/ThunderFly-aerospace/ec2)
  - [Mono](http://www.mono-project.com/) to build and run the GUI firmware updater.
  - Python to run the command-line firmware updater.
 
