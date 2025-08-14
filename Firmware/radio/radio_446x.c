@@ -113,7 +113,7 @@ __xdata uint8_t outdiv;
 __xdata uint32_t freq_control_base;
 __xdata uint16_t freq_control_spacing;
 
-#define XO_FREQ 	30000000
+#define XO_FREQ 	26000000
 
 static volatile __bit packet_received;
 static volatile __bit sync_detected;
