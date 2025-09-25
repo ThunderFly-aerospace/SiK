@@ -627,7 +627,7 @@ radio_initialise(void)
 
 	wait_for_cts();
 
-	cmd_power_up(0x1, 0x0, 30000000);
+	cmd_power_up(0x1, 0x0, XO_FREQ);
 	wait_for_cts();
 
 	if (!check_part())
