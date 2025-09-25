@@ -1,8 +1,8 @@
-# SiK - Firmware Telemetry data transfer for SiLabs Si102x/3x/6x ISM Transceivers
+# SiK - Firmware for Telemetry data transfer with SiLabs Si102x/3x/6x ISM Transceivers
 
 [![Build firmware](https://github.com/ThunderFly-aerospace/SiK/actions/workflows/build-firmware.yaml/badge.svg)](https://github.com/ThunderFly-aerospace/SiK/actions/workflows/build-firmware.yaml)
 
-SiK is a collection of firmware and tools for radios based on SiLabs Si1000 and Si1060 SoC Transceivers.
+SiK is a collection of firmware and tools for UAV telemetry radios based on SiLabs Si1000 and Si1060 SoC Transceivers.
 
 ## Documentation
 For user documentation, please see [ThunderFly docs](https://docs.thunderfly.cz/avionics/TFSIK01/)
