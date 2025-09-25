@@ -1,15 +1,11 @@
-# SiK - Firmware for SiLabs Si1000 - Si102x/3x/6x ISM radios commonly used for Telemetry data transfer
+# SiK - Firmware Telemetry data transfer for SiLabs Si102x/3x/6x ISM Transceivers
 
 [![Build firmware](https://github.com/ThunderFly-aerospace/SiK/actions/workflows/build-firmware.yaml/badge.svg)](https://github.com/ThunderFly-aerospace/SiK/actions/workflows/build-firmware.yaml)
 
-
-
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ArduPilot/SiK?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-SiK is a collection of firmware and tools for radios based on the cheap, versatile SiLabs Si1000 and Si1060 SoC.
+SiK is a collection of firmware and tools for radios based on SiLabs Si1000 and Si1060 SoC Transceivers.
 
 ## Documentation
-For user documentation please see [ardupilot docs](http://ardupilot.org/copter/docs/common-sik-telemetry-radio.html)
+For user documentation, please see [ThunderFly docs](https://docs.thunderfly.cz/avionics/TFSIK01/)
 
 Currently, it supports the following boards:
 
@@ -18,7 +14,7 @@ Currently, it supports the following boards:
  - RFD900
  - RFD900u
  - RFD900p
- - [MLAB ISM01A](https://www.mlab.cz/module/ISM01A)
+ - [MLAB ISM01](https://www.mlab.cz/module/ISM01/) - Modular Laboratory Si1060 development module
  - [ThunderFly TFSIK01](https://github.com/ThunderFly-aerospace/TFSIK01) - UAV dual antenna diversity sub-GHz radio modem. 
 
 Currently, the firmware components include:
@@ -55,7 +51,7 @@ During initial startup or after a link is lost, the radios enter a scanning mode
 
 |Command| Variants| Function |
 |-------|--------|----------|
-|+++    | |Entering command mode. This could be tested by sending AT, the reply should be OK. To prevent data from being seen as the command sequence, a guard time is required, so make sure you type nothing on the serial link for 1 second before and after entering the sequence.|
+|+++    | |Entering command mode. This could be tested by sending AT; the reply should be OK. To prevent data from being seen as the command sequence, a guard time is required, so make sure you type nothing on the serial link for 1 second before and after entering the sequence.|
 |RT     | |remote AT command - send it to the TDM, system to send to the remote radio |
 |AT&F   | |  Restore default parameters |
 |AT&W| | Write parameters to the flash memory | 
@@ -72,7 +68,7 @@ During initial startup or after a link is lost, the radios enter a scanning mode
 |ATI5| | Show all user-configurable parameters |
 |ATI6| | TDM timing report |
 |ATI7| | Show RSSI report |
-|ATP |  ATPx=O <br> ATPx=I <br> ATPx=R <br> ATPx=Cx | Set pin to output, turn mirroring off pulling pin to ground    |
+|ATP |  ATPx=O <br> ATPx=I <br> ATPx=R <br> ATPx=Cx | Set pin to output, turn mirroring off, pulling pin to ground    |
 |ATO | |  Go on-air (exit command mode)  |
 |ATS | ATS? <br> ATS= | <br> Set a parameter  |
 |ATZ | | Generate a software reset    |
@@ -129,14 +125,14 @@ Change the number of channels to one. (eg. disable channel hopping)
     OK
     ATZ
 
-Change antenna diversity mode (specific command for [ThunderFly TFSIK01](https://github.com/ThunderFly-aerospace/TFSIK01) with dual antenna): 
+Change antenna diversity mode (specific command for [ThunderFly TFSIK01](https://docs.thunderfly.cz/avionics/TFSIK01/) with dual antenna): 
 
     AT+A=1
     OK
     AT+A=2
     OK
  
-## What You Will Need to Development
+## What You Will Need for Development
 
  - A Mac OS X or Linux system for building.  Mac users will need the Developer Tools (Xcode) installed.
  - At least two Si1000 - Si102x/3x - based radio devices (just one radio by itself is not very useful).
@@ -150,24 +146,25 @@ Just so you know, at this time, building on Windows systems is not supported if 
 
 ## Building Things
 
-Type `make install` in the Firmware directory.  If all is well, this will produce a folder called `dst` containing bootloader and firmware images.
+Type `make install` in the Firmware directory.  If all is well, this will produce a folder called `dst` containing the bootloader and firmware images.
 
 If you want to fine-tune the build process, `make help` will give you more details.
 
-Building the SiK firmware generates bootloaders and firmware for each of the supported boards. Many boards are available tuned to specific frequencies but have no way for software on the Si1000 to detect which frequency the board is configured for. In this case, the build will produce different versions of the bootloader for each board. It's important to select the correct bootloader version for your board if this is the case.
+Building the SiK firmware generates bootloaders and firmware for each of the supported boards. Many boards are available, tuned to specific frequencies, but have no way for software on the Si1000 to detect which frequency the board is configured for. In this case, the build will produce different versions of the bootloader for each board. It's important to select the correct bootloader version for your board if this is the case.
 
 ## Flashing and Uploading
 
-The SiLabs debug adapter can be used to flash both the bootloader and the firmware. Alternatively, once the bootloader has been flashed the updater application can be used to update the firmware (it's faster than flashing, too).
+The SiLabs debug adapter can be used to flash both the bootloader and the firmware. Alternatively, once the bootloader has been flashed, the updater application can be used to update the firmware (it's faster than flashing, too).
 
 The `Firmware/tools/ec2upload` script can be used to flash either a bootloader or firmware to an attached board with the SiLabs USB debug adapter.  Further details on the connections required to flash a specific board should be found in the `Firmware/include/board_*.h` header for the board in question.
 
-To use the updater application, open the `SiKUploader/SikUploader.sln` Mono solution file, build and run the application. Select the serial port connected to your radio and the appropriate firmware `.hex` file for the firmware you wish to uploader.  You will need to get the board into the bootloader; how you do this varies from board to board, but it will normally involve either holding down a button or pulling a pin high or low when the board is reset or powered on.
+To use the updater application, open the `SiKUploader/SikUploader.sln` Mono solution file, build and run the application. Select the serial port connected to your radio and the appropriate firmware `.hex` file for the firmware you wish to upload.  You will need to get the board into the bootloader; how you do this varies from board to board, but it will normally involve either holding down a button or pulling a pin high or low when the board is reset or powered on.
 
 For the supported boards:
 
- - HM-TRP: hold the CONFIG pin low when applying power to the board.
- - RF50-DEMO: hold the ENTER button down and press RST.
+ - TFSIK01: Hold the BOOT/CTS pin low when applying power to the board.
+ - HM-TRP: Hold the CONFIG pin low when applying power to the board.
+ - RF50-DEMO: Hold the ENTER button down and press RST.
  - RFD900x: hold the BOOT/CTS pin low when applying power to the board.
 
 The uploader application contains a bidirectional serial console that can be used for interacting with the radio firmware.
@@ -190,4 +187,4 @@ Please use the GitHub issues link at the top of the GitHub project page to repor
 
 ## What does SiK mean?
 
-It should really be Sik, since 'K' is the SI abbreviation for Kelvin, and what I meant was 'k', i.e. 1000.  Someday I might change it.
+It should really be Sik, since 'K' is the SI abbreviation for Kelvin, and what I meant was 'k', i.e., 1000.
