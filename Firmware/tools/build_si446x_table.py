@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # This script generates radio/radio_446x_conf.h
+# Copyright (c) 2022 ThunderFly s.r.o., All Rights Reserved
 #
 # Silabs' WDS software allows to export a header file containing register values
 # for a specific configuration of the radio. For our use we want to be able to

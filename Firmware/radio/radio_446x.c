@@ -1,6 +1,6 @@
 // -*- Mode: C; c-basic-offset: 8; -*-
 //
-// Copyright (c) 2019 Martin Poviser, All Rights Reserved
+// Copyright (c) 2019 Martin Poviser (ThunderFly s.r.o.), All Rights Reserved
 // Copyright (c) 2011 Michael Smith, All Rights Reserved
 // Copyright (c) 2011 Andrew Tridgell, All Rights Reserved
 //
