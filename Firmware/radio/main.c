@@ -257,7 +257,7 @@ hardware_init(void)
 	/* ------------ Change to radio page ------------ */
 	RADIO_PAGE();
 	SPI1CFG  = 0x40;  // master mode
-#if defined(BOARD_ism01a) || defined(BOARD_hb1060) || defined(BOARD_3dr1060) || defined(BOARD_tfsik01a)
+#if defined(BOARD_ism01a) || defined(BOARD_hb1060) || defined(BOARD_3dr1060) || defined(BOARD_tfsik01_26MHz) || defined(BOARD_tfsik01_30MHz)
         SPI1CN   = 0x0C;  // 4 wire master mode, NSS1=1
 #else
         SPI1CN   = 0x00;  // 3 wire master mode
