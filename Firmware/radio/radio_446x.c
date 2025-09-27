@@ -531,6 +531,22 @@ radio_transmit(uint8_t length, __xdata uint8_t * __pdata buf, __pdata uint16_t t
 	return ret;
 }
 
+void
+radio_test_cw_start(void)
+{
+        /* Continuous wave uses the standard transmit path, no setup required. */
+}
+
+void
+radio_test_cw_stop(void)
+{
+        /* Ensure the radio is not left in TX state when stopping CW mode. */
+        EX0_SAVE_DISABLE;
+        cmd_change_state(STATE_READY);
+        wait_for_cts();
+        EX0_RESTORE;
+}
+
 static void
 _radio_receiver_on(void) __reentrant
 {

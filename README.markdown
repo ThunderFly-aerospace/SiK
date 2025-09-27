@@ -57,7 +57,7 @@ During initial startup or after a link is lost, the radios enter a scanning mode
 |AT&W| | Write parameters to the flash memory | 
 |AT&U | | Erase Flash signature forcing it into reprogram mode next reset |
 |AT&P | | TDM change phase |
-|AT&T | AT&T <br> AT&T=RSSI <br> AT&T=TDM |  disable all test modes <br> display RSSI stats <br> display TDM debug |
+|AT&T | AT&T <br> AT&T=RSSI <br> AT&T=TDM <br> AT&T=CW |  disable all test modes <br> display RSSI stats <br> display TDM debug <br> toggle continuous wave transmit mode for carrier measurements |
 |AT&E | AT&E?  <br> AT&E= | Print_encryption_key <br> Set encryption key | 
 |AT+ | AT+P= <br> AT+Cx=y <br> AT+Fx? <br> AT+L <br> AT+A |  set power level PWR to x immediately <br>  write calibration value <br> get calibration value <br> lock bootloader area if all calibrations written <br> Select antenna and override diversity  |
 |ATI0| | banner_string |

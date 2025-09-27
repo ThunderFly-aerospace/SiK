@@ -436,12 +436,15 @@ at_ampersand(void)
 		} else if (!strcmp(at_cmd + 4, "=RSSI")) {
 			// display RSSI stats
 			at_testmode ^= AT_TEST_RSSI;
-		} else if (!strcmp(at_cmd + 4, "=TDM")) {
-			// display TDM debug
-			at_testmode ^= AT_TEST_TDM;
-		} else {
-			at_error();
-		}
+                } else if (!strcmp(at_cmd + 4, "=TDM")) {
+                        // display TDM debug
+                        at_testmode ^= AT_TEST_TDM;
+                } else if (!strcmp(at_cmd + 4, "=CW")) {
+                        // continuous wave transmit test
+                        at_testmode ^= AT_TEST_CW;
+                } else {
+                        at_error();
+                }
 		break;
 #ifdef INCLUDE_AES
   case 'E':
