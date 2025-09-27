@@ -2,6 +2,7 @@ The directories conf_Si1060_26MHz and conf_Si1060_30MHz contain configuration he
 
 The firmware build regenerates the radio configuration header on demand. The helper script supports selecting the desired header set explicitly, e.g.:
 
-    ../../Firmware/tools/build_si446x_table.py --config-dir conf_Si1060_30MHz --output ../../Firmware/radio/radio_446x_conf.h
+    ../../Firmware/tools/build_si446x_table.py --config-dir conf_Si1060_30MHz --output ../../Firmware/obj/<BOARD>/<PRODUCT>/generated/radio_446x_conf.h
 
-Adjust the --config-dir argument to point to either the 26 MHz or 30 MHz directory when regenerating the table manually.
+Adjust the --config-dir argument to point to either the 26 MHz or 30 MHz directory when regenerating the table manually, and
+replace the placeholder path components in the --output argument with the desired build output directory.

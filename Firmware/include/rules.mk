@@ -64,12 +64,14 @@ DSTROOT		?=	$(SRCROOT)/dst
 
 SI446X_CONFIG_DIR       ?=      $(SRCROOT)/../data/conf_Si1060_30MHz
 SI446X_TOOL             :=      $(SRCROOT)/tools/build_si446x_table.py
-RADIO_CONF_DIR          :=      $(SRCROOT)/radio
+RADIO_INCLUDE_DIR       :=      $(SRCROOT)/radio
+RADIO_CONF_DIR          :=      $(OBJROOT)/generated
 RADIO_CONF              :=      $(RADIO_CONF_DIR)/radio_446x_conf.h
 SI446X_HEADERS          :=      $(sort $(wildcard $(SI446X_CONFIG_DIR)/*.h))
 
 # Ensure the generated configuration is available before compiling sources.
 GLOBAL_DEPS     +=      $(RADIO_CONF)
+CFLAGS          +=      -I$(RADIO_INCLUDE_DIR)
 CFLAGS          +=      -I$(RADIO_CONF_DIR)
 
 
@@ -101,7 +103,7 @@ DEPFLAGS	 =	-MM $(CFLAGS)
 
 $(RADIO_CONF): $(SI446X_TOOL) $(SI446X_HEADERS)
 	@echo GEN $@
-	@mkdir -p $(RADIO_CONF_DIR)
+	@mkdir -p $(dir $@)
 	$(v)$(PYTHON) $(SI446X_TOOL) --config-dir $(SI446X_CONFIG_DIR) --output $@
 
 ifeq ($(INCLUDE_AES),1)
