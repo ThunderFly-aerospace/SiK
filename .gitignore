@@ -1,6 +1,7 @@
 .metadata
 Firmware/bootloader/obj
 Firmware/radio/obj
+Firmware/radio/radio_446x_conf.h
 Firmware/.cproject
 Firmware/.project
 SiKUploader/uploader/bin

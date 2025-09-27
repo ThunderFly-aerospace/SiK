@@ -64,7 +64,7 @@ DSTROOT		?=	$(SRCROOT)/dst
 
 SI446X_CONFIG_DIR       ?=      $(SRCROOT)/../data/conf_Si1060_30MHz
 SI446X_TOOL             :=      $(SRCROOT)/tools/build_si446x_table.py
-RADIO_CONF_DIR          :=      $(OBJROOT)/generated
+RADIO_CONF_DIR          :=      $(SRCROOT)/radio
 RADIO_CONF              :=      $(RADIO_CONF_DIR)/radio_446x_conf.h
 SI446X_HEADERS          :=      $(sort $(wildcard $(SI446X_CONFIG_DIR)/*.h))
 
