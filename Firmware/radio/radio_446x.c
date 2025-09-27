@@ -1,6 +1,6 @@
 // -*- Mode: C; c-basic-offset: 8; -*-
 //
-// Copyright (c) 2019 Martin Poviser, All Rights Reserved
+// Copyright (c) 2019 Martin Poviser (ThunderFly s.r.o.), All Rights Reserved
 // Copyright (c) 2011 Michael Smith, All Rights Reserved
 // Copyright (c) 2011 Andrew Tridgell, All Rights Reserved
 //
@@ -113,7 +113,9 @@ __xdata uint8_t outdiv;
 __xdata uint32_t freq_control_base;
 __xdata uint16_t freq_control_spacing;
 
-#define XO_FREQ 	30000000
+#ifndef XO_FREQ
+#define XO_FREQ 	30000000UL
+#endif
 
 static volatile __bit packet_received;
 static volatile __bit sync_detected;
@@ -627,7 +629,7 @@ radio_initialise(void)
 
 	wait_for_cts();
 
-	cmd_power_up(0x1, 0x0, 30000000);
+	cmd_power_up(0x1, 0x0, XO_FREQ);
 	wait_for_cts();
 
 	if (!check_part())
@@ -837,7 +839,7 @@ radio_configure(__pdata uint8_t air_rate)
 	cmd_fifo_info(0x03);
 	wait_for_cts();
 
-#if defined(BOARD_ism01a) || defined(BOARD_tfsik01a)
+#if defined(BOARD_ism01a) || defined(BOARD_tfsik01_26MHz) || defined(BOARD_tfsik01_30MHz)
 	radio_set_diversity(DIVERSITY_ENABLED);
 #else
 	radio_set_diversity(DIVERSITY_DISABLED);
