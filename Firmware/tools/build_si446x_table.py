@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# This script generates radio/radio_446x_conf.h
+# This script generates a board-specific radio_446x_conf.h
 # Copyright (c) 2022 ThunderFly s.r.o., All Rights Reserved
 #
 # Silabs' WDS software allows to export a header file containing register values
