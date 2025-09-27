@@ -122,8 +122,10 @@
 # include "board_mro900.h"
 #elif defined(BOARD_3dr1060)
 # include "board_3dr1060.h"
-#elif defined(BOARD_tfsik01a)
-# include "board_tfsik01a.h"
+#elif defined(BOARD_tfsik01_26MHz)
+# include "board_tfsik01_26MHz.h"
+#elif defined(BOARD_tfsik01_30MHz)
+# include "board_tfsik01_30MHz.h"
 #else
 # error Must define a BOARD_ value before including this file.
 #endif

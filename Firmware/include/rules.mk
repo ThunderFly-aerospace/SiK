@@ -62,6 +62,17 @@ CFLAGS		+=	-DBOARD_$(BOARD)
 OBJROOT		?=	$(SRCROOT)/obj/$(BOARD)/$(PRODUCT)
 DSTROOT		?=	$(SRCROOT)/dst
 
+SI446X_CONFIG_DIR       ?=      $(SRCROOT)/../data/conf_Si1060_30MHz
+SI446X_TOOL             :=      $(SRCROOT)/tools/build_si446x_table.py
+RADIO_CONF_DIR          :=      $(OBJROOT)/generated
+RADIO_CONF              :=      $(RADIO_CONF_DIR)/radio_446x_conf.h
+SI446X_HEADERS          :=      $(sort $(wildcard $(SI446X_CONFIG_DIR)/*.h))
+
+# Ensure the generated configuration is available before compiling sources.
+GLOBAL_DEPS     +=      $(RADIO_CONF)
+CFLAGS          +=      -I$(RADIO_CONF_DIR)
+
+
 #
 # Buildable and installable products
 #
@@ -79,6 +90,7 @@ AS		 =	sdas8051 -jloscp
 LD		 =	sdcc
 MD5		 =	md5
 BANK_ALLOC	 =	./tools/bank-alloc.py
+PYTHON		?=	python3
 INCLUDES	 =	$(SRCROOT)/include
 CFLAGS		+=	$(addprefix -I,$(INCLUDES))
 CFLAGS 		+=  --disable-warning 110
@@ -86,6 +98,11 @@ CFLAGS 		+=  --disable-warning 110
 # that warning doesn't seem to be due to any defect in source code, AFAICT it merely means some
 # code got optimized out
 DEPFLAGS	 =	-MM $(CFLAGS)
+
+$(RADIO_CONF): $(SI446X_TOOL) $(SI446X_HEADERS)
+	@echo GEN $@
+	@mkdir -p $(RADIO_CONF_DIR)
+	$(v)$(PYTHON) $(SI446X_TOOL) --config-dir $(SI446X_CONFIG_DIR) --output $@
 
 ifeq ($(INCLUDE_AES),1)
 INC_DIR		+= $(INC_DIR_AES)

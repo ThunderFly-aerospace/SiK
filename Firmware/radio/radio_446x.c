@@ -113,7 +113,9 @@ __xdata uint8_t outdiv;
 __xdata uint32_t freq_control_base;
 __xdata uint16_t freq_control_spacing;
 
-#define XO_FREQ 	26000000
+#ifndef XO_FREQ
+#define XO_FREQ 	30000000UL
+#endif
 
 static volatile __bit packet_received;
 static volatile __bit sync_detected;
@@ -837,7 +839,7 @@ radio_configure(__pdata uint8_t air_rate)
 	cmd_fifo_info(0x03);
 	wait_for_cts();
 
-#if defined(BOARD_ism01a) || defined(BOARD_tfsik01a)
+#if defined(BOARD_ism01a) || defined(BOARD_tfsik01_26MHz) || defined(BOARD_tfsik01_30MHz)
 	radio_set_diversity(DIVERSITY_ENABLED);
 #else
 	radio_set_diversity(DIVERSITY_DISABLED);
