@@ -56,6 +56,10 @@ __pdata static enum tdm_state tdm_state;
 /// a packet buffer for the TDM code
 __xdata uint8_t	pbuf[MAX_PACKET_LENGTH];
 
+/// bookkeeping for continuous wave transmissions
+static __bit cw_packet_initialised;
+static __bit cw_active;
+
 /// how many 16usec ticks are remaining in the current state
 __pdata static uint16_t tdm_state_remaining;
 
@@ -531,6 +535,33 @@ tdm_serial_loop(void)
     // give the AT command processor a chance to handle a command
     at_command();
     
+    if (at_testmode & AT_TEST_CW) {
+      if (!cw_packet_initialised) {
+        memset(pbuf, 0x00, sizeof(pbuf));
+        cw_packet_initialised = 1;
+      }
+      if (!cw_active) {
+        radio_set_channel(fhop_transmit_channel());
+        radio_test_cw_start();
+        cw_active = 1;
+        transmit_wait = 0;
+        bonus_transmit = 0;
+        transmit_yield = 0;
+        last_t = timer2_tick();
+        last_link_update = last_t;
+      }
+      radio_transmit(MAX_PACKET_LENGTH, pbuf, 0xFFFFU);
+      continue;
+    } else if (cw_active) {
+      radio_test_cw_stop();
+      radio_receiver_on();
+      cw_active = 0;
+      cw_packet_initialised = 0;
+      last_t = timer2_tick();
+      last_link_update = last_t;
+      continue;
+    }
+
     // display test data if needed
     if (test_display) {
       display_test_output();

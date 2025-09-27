@@ -73,6 +73,7 @@ extern __pdata uint8_t  at_testmode;    ///< AT_TEST_* bits
 
 #define AT_TEST_RSSI 1
 #define AT_TEST_TDM  2
+#define AT_TEST_CW   4
 
 // max size of an AT command
 #ifdef CPU_SI1030

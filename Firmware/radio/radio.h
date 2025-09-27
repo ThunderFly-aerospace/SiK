@@ -183,6 +183,12 @@ extern bool radio_transmit(uint8_t length, __xdata uint8_t * __pdata buf, __pdat
 ///
 extern bool radio_receiver_on(void);
 
+/// start continuous wave test transmission
+extern void radio_test_cw_start(void);
+
+/// stop continuous wave test transmission
+extern void radio_test_cw_stop(void);
+
 /// reset and intiialise the radio
 ///
 /// @return			True if the initialisation completed successfully.
