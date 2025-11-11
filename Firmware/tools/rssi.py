@@ -32,7 +32,7 @@ def rssi(device):
     time.sleep(1)
     ser.send('\r\nATI\r\n')
     try:
-        ser.expect(['OK','SiK .* on HM-TRP'], timeout=2)
+        ser.expect(['OK','SiK .*'], timeout=2)
     except fdpexpect.TIMEOUT:
         print("timeout")
         return
@@ -55,6 +55,8 @@ def rssi(device):
             buf = port.read(count)
             if len(buf) == 0:
                 continue
+            if isinstance(buf, bytes):
+                buf = buf.decode('utf-8', errors='replace')
             sys.stdout.write(buf)
             sys.stdout.flush()
             ctr = ctr + 1
