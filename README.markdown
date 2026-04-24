@@ -188,3 +188,107 @@ Please use the GitHub issues link at the top of the GitHub project page to repor
 ## What does SiK mean?
 
 It should really be Sik, since 'K' is the SI abbreviation for Kelvin, and what I meant was 'k', i.e., 1000.
+
+## One-way firmware (branch `one_direction_2026`)
+
+This branch builds a variant of the firmware dedicated to one-way
+links. The TDM state machine is removed entirely — a modem configured
+with this firmware is either a transmitter or a receiver for its whole
+lifetime, and never switches roles. Multiple receivers can listen to
+the same transmitter at once (the air-side protocol is just raw
+packets on a fixed channel, so any radio with the matching NETID and
+air speed will decode them), but there is no ACK or coordination
+between receivers.
+
+Typical use case: a probe/sonde transmits its position periodically
+on the TX modem and a number of ground receivers pick it up
+independently.
+
+### Role selection — the `RX_TX` parameter
+
+A new AT S-register `RX_TX` (S16) selects the role. The default is
+receiver. To configure a modem as a transmitter:
+
+    +++
+    OK
+    ATS16=1
+    OK
+    AT&W
+    OK
+    ATZ
+
+A receiver is the default, but can be made explicit:
+
+    ATS16=0
+
+`RX_TX` is read once at boot; changing it at runtime has no effect
+until `AT&W` and `ATZ`.
+
+### What the firmware does
+
+The Si446x on-air packet handler still provides preamble, sync word
+(driven by `NETID`), payload length and a CRC16 — the chip drops
+corrupt frames on its own. The firmware only adds the application-
+level byte stream on top.
+
+**Transmitter (`RX_TX=1`):**
+
+- Radio is parked on channel 0 at boot. No frequency hopping.
+- In the main loop, bytes coming in on the UART are packaged by
+  `packet_get_next(MAX_PACKET_LENGTH, …)` and handed to
+  `radio_transmit(len, pbuf, 65000)`. That's it — no trailer, no
+  window, no retries, no listen-before-talk, no duty-cycle shaping.
+- AT command mode still works over the local serial console (`+++`,
+  `ATS16=…`, etc.).
+
+**Receiver (`RX_TX=0`):**
+
+- Radio is parked on channel 0 at boot and switched to RX with
+  `radio_receiver_on()`.
+- `radio_receive_packet(&len, pbuf)` returns each complete frame the
+  chip accepted; its bytes go straight to the UART via
+  `serial_write_buf(pbuf, len)`. No dedup, no CRC check (the chip
+  already did it), no AES trailer.
+- Every ~1 s the receiver emits a MAVLink v2 `RADIO` status report on
+  the UART so a connected flight controller or ground station can see
+  the link statistics.
+- `statistics.average_rssi` and `statistics.receive_count` are
+  updated, so `AT&T=RSSI` / `ATI7` still make sense on a receiver.
+
+**What is NOT available on this branch** (intentionally): FHSS /
+frequency hopping, remote AT commands (`RT…`), per-packet ACKs and
+opportunistic resend, listen-before-talk, duty-cycle throttling,
+TDM window sync between two radios, packet deduplication, AES with
+per-packet CRC. If you need any of these, use the `master` branch.
+
+### Antenna switching on TFSIK01
+
+The TFSIK01 has two antennas on an RF switch driven by two of the
+Si446x GPIO pins.
+
+- **Upstream firmware (`master` branch).** `GPIO_0_CONFIG` and
+  `GPIO_3_CONFIG` are set to the runtime variables `ant1` / `ant2` in
+  `radio_446x.c`. At the start of each receive window the firmware
+  compares the RSSI the chip reported on antenna 1 versus antenna 2
+  from the previous packet and swaps the assignment, so the
+  currently-better antenna is used next. This diversity algorithm
+  gives the bidirectional link a free link-budget improvement because
+  the TX side also gets feedback about which antenna is doing better
+  from the returning packets.
+- **One-way firmware (this branch).** On the transmitter there is no
+  returning packet to measure, so the diversity algorithm has no
+  input to work with — it would effectively pick an antenna at
+  random. The two GPIOs are therefore wired directly to the
+  Si446x-internal `GPIO_ANT_1_SW` and `GPIO_ANT_2_SW` signals in
+  both `board_tfsik01_26MHz.h` and `board_tfsik01_30MHz.h`. The
+  chip's own packet handler asserts whichever antenna signal its
+  hardware RX-diversity state machine selects; on TX it simply
+  drives one of them high, so the RF switch routes the signal to a
+  single, stable antenna for the whole packet burst. Net effect: the
+  transmitter radiates reliably through one antenna instead of
+  thrashing the switch; the receiver benefits from the usual
+  hardware RX-diversity behaviour of the chip.
+
+ISM01A already had the two GPIOs tied to the same internal signals
+on `master`, so its board header is unchanged on this branch.
+
