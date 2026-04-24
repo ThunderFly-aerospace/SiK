@@ -62,13 +62,14 @@ enum ParamID {
 	PARAM_MANCHESTER,		// enable manchester encoding
 	PARAM_RTSCTS,			// enable hardware flow control
 	PARAM_MAX_WINDOW,		// The maximum window size allowed
+	PARAM_RX_TX,			// 0 = receiver only, 1 = transmitter only
 #ifdef INCLUDE_AES
   PARAM_ENCRYPTION,     // no Enycryption (0), 128 or 256 bit key
 #endif
 	PARAM_MAX				// must be last
 };
 
-#define PARAM_FORMAT_CURRENT	0x1aUL				///< current parameter format ID
+#define PARAM_FORMAT_CURRENT	0x1bUL				///< current parameter format ID
 
 /// Parameter type.
 ///
