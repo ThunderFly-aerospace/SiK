@@ -455,7 +455,7 @@ calibration_force_get(uint8_t idx) __reentrant
 }
 
 bool
-calibration_lock() __reentrant
+calibration_lock(void) __reentrant
 {
 	uint8_t idx;
 	uint8_t crc = 0;
@@ -526,20 +526,20 @@ calibration_set(uint8_t value) __reentrant
 }
 
 uint8_t
-calibration_get() __reentrant
+calibration_get(void) __reentrant
 {
 	PSBANK = 0x33;
 	return calibration;
 }
 
 uint8_t
-calibration_force_get() __reentrant
+calibration_force_get(void) __reentrant
 {
 	return flash_read_byte(FLASH_CALIBRATION_OSC_HIGH);
 }
 
 bool
-calibration_lock() __reentrant
+calibration_lock(void) __reentrant
 {
 
 	PSBANK = 0x33;
@@ -645,7 +645,7 @@ param_set_encryption_key(__xdata unsigned char *key)
 /// Print hex codes for given string
 ///
 void
-print_encryption_key()
+print_encryption_key(void)
 {
   __pdata uint8_t i;
   __pdata uint8_t key_length = AES_KEY_LENGTH(param_get(PARAM_ENCRYPTION));
@@ -661,7 +661,7 @@ print_encryption_key()
 
 /// get the encryption key
 ///
-__xdata uint8_t* param_get_encryption_key()
+__xdata uint8_t* param_get_encryption_key(void)
 {
 	return encryption_key;
 }
