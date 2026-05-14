@@ -27,7 +27,7 @@ def rssi(device):
         xonxoff=opts.xonxoff
     )
 
-    ser = fdpexpect.fdspawn(port.fileno(), logfile=sys.stdout, encoding="utf-8")
+    ser = fdpexpect.fdspawn(port.fileno(), logfile=sys.stdout, encoding="latin-1")
     ser.send('+++')
     time.sleep(1)
     ser.send('\r\nATI\r\n')
