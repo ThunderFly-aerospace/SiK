@@ -17,6 +17,15 @@ if len(args) == 0:
     sys.exit(1)
 
 
+def flush(ser):
+    '''discard everything currently pending, both in pexpect's own buffer
+    and in the underlying serial input buffer'''
+    try:
+        ser.expect(fdpexpect.TIMEOUT, timeout=0.5)
+    except fdpexpect.EOF:
+        pass
+
+
 def rssi(device):
     port = serial.Serial(
         device,
@@ -27,18 +36,28 @@ def rssi(device):
         xonxoff=opts.xonxoff
     )
 
-    ser = fdpexpect.fdspawn(port.fileno(), logfile=sys.stdout, encoding="latin-1")
+    ser = fdpexpect.fdspawn(port.fileno(), encoding="latin-1")
+    # logfile_read (not logfile) so we echo only what the modem sends back,
+    # otherwise every command we send is printed twice.
+    ser.logfile_read = sys.stdout
     ser.send('+++')
     time.sleep(1)
+    # '+++' makes the modem print "OK" and switch to command mode. Drop that
+    # reply (and any stale line noise) so the ATI response below is matched
+    # against the version banner only, not against the leftover "OK".
+    flush(ser)
     ser.send('\r\nATI\r\n')
     try:
-        ser.expect(['OK','SiK .*'], timeout=2)
+        ser.expect('SiK .*', timeout=2)
     except fdpexpect.TIMEOUT:
         print("timeout")
         return
+    # Let the banner finish and drain it; otherwise AT&F is sent while the
+    # modem is still transmitting and is received corrupted.
+    flush(ser)
     ser.send('AT&F\r\n')
     try:
-        ser.expect(['OK'], timeout=2)
+        ser.expect('OK', timeout=2)
     except fdpexpect.TIMEOUT:
         print("timeout")
         return
